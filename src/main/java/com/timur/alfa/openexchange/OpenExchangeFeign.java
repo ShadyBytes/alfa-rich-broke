@@ -8,20 +8,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 
-import java.time.LocalDate;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-
 @FeignClient(value = "exchange-client", url = "${currencyApiURL}")
 public interface OpenExchangeFeign {
 
 
     @RequestMapping(method = RequestMethod.GET,
-            value = "/historical/{dateToCompareWith}.json",
+            value = "/historical/{date}.json",
             produces = MediaType.APPLICATION_JSON_VALUE
     )
-    ResponseEntity<Object> getSampleDataByIds(@PathVariable String dateToCompareWith,
-                                              @RequestParam("app_id") String appID);
+    ResponseEntity<String> getCurrencyInfoForYesterday(@PathVariable String date,
+                                                       @RequestParam("app_id") String appID);
+
+    @RequestMapping(method = RequestMethod.GET,
+            value = "/latest.json",
+            produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    ResponseEntity<String> getCurrencyInfoForToday(@RequestParam("app_id") String appID);
 
 }
