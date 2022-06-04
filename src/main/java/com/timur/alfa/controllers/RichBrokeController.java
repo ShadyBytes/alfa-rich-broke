@@ -1,46 +1,42 @@
 package com.timur.alfa.controllers;
 
+import com.timur.alfa.giphy.GiphyFeign;
 import com.timur.alfa.giphy.GiphyHandler;
 import com.timur.alfa.openexchange.OpenExchangeFeign;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.time.LocalDate;
+import java.util.Random;
 
 @RestController
 public class RichBrokeController {
 
-    @Value("${currencyApiURL}")
-    String currencyApiURL;
     @Value("${currencyToCompare}")
     String currency;
     @Value("${currencyApiKey}")
     String currencyApiKey;
+    @Value("${giphyApiKey}")
+    String giphyApiKey;
 
     final GiphyHandler giphyHandler;
     private final OpenExchangeFeign openExchangeFeign;
+    private final GiphyFeign giphyFeign;
     String datePathYesterday;
 
 
-    public RichBrokeController(GiphyHandler giphyHandler, OpenExchangeFeign openExchangeFeign) {
+    public RichBrokeController(GiphyHandler giphyHandler, OpenExchangeFeign openExchangeFeign, GiphyFeign giphyFeign) {
         this.giphyHandler = giphyHandler;
         this.openExchangeFeign = openExchangeFeign;
+        this.giphyFeign = giphyFeign;
 
-        LocalDate current_date = LocalDate.now().minusDays(3);
+        LocalDate current_date = LocalDate.now().minusDays(1);
         this.datePathYesterday = current_date.getYear() + "-" +
                 Utils.numberToXXFormatter(current_date.getMonthValue()) + "-" +
                 Utils.numberToXXFormatter(current_date.getDayOfMonth());
-    }
-
-    @GetMapping("/latest")
-    public ResponseEntity<String> latest() {
-//        return "currency is " + currency + " and URL is " + currencyApiURL;
-//        return giphyHandler.getSearchURL("Rich");
-        return openExchangeFeign.getCurrencyInfoForToday(currencyApiKey);
     }
 
     @GetMapping("/richorbroke")
@@ -55,14 +51,21 @@ public class RichBrokeController {
         jsonObject = new JSONObject(responseEntityToday.getBody());
         Double todayValue = jsonObject.getJSONObject("rates").getDouble(currency);
 
-        return "" + yesterdayValue + " and today is " + todayValue;
+        // logic to return a giphy link
+        String giphySearchQuery = "Poor";
+        if (todayValue >= yesterdayValue) {
+            giphySearchQuery = "Rich";
+        }
+        ResponseEntity<String> responseEntityGiphy =
+                giphyFeign.getGifLinkFromSearch(giphyApiKey, giphySearchQuery, 1,
+                        new Random().nextInt(4999));
+        jsonObject = new JSONObject(responseEntityGiphy.getBody());
+        String gifLink = jsonObject.getJSONArray("data")
+                .getJSONObject(0)
+                .getJSONObject("images")
+                .getJSONObject("original")
+                .getString("url");
 
-
-//        JSONObject jsonObject = new JSONObject(responseEntity.getBody());
-//        throw new RuntimeException(String.valueOf(jsonObject.getJSONObject("rates").getDouble(currency)));
-//        throw new RuntimeException(String.valueOf(responseEntity.getBody().toString()));
-//        return new ResponseEntity<>(jsonObject.getJSONObject("rates"), HttpStatus.OK);
+        return gifLink;
     }
-
-
 }
