@@ -52,7 +52,7 @@ public class RichBrokeController {
         Double todayValue = jsonObject.getJSONObject("rates").getDouble(currency);
 
         // logic to return a giphy link
-        String giphySearchQuery = todayValue >= yesterdayValue ? "Rich" : "Poor";
+        String giphySearchQuery = todayValue >= yesterdayValue ? "Rich" : "Broke";
         ResponseEntity<String> responseEntityGiphy =
                 giphyFeign.getGifLinkFromSearch(giphyApiKey, giphySearchQuery, 1,
                         new Random().nextInt(2000));
