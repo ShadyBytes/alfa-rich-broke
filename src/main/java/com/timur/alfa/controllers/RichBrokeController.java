@@ -1,7 +1,6 @@
 package com.timur.alfa.controllers;
 
 import com.timur.alfa.giphy.GiphyFeign;
-import com.timur.alfa.giphy.GiphyHandler;
 import com.timur.alfa.openexchange.OpenExchangeFeign;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,14 +21,12 @@ public class RichBrokeController {
     @Value("${giphyApiKey}")
     String giphyApiKey;
 
-    final GiphyHandler giphyHandler;
     private final OpenExchangeFeign openExchangeFeign;
     private final GiphyFeign giphyFeign;
     String datePathYesterday;
 
 
-    public RichBrokeController(GiphyHandler giphyHandler, OpenExchangeFeign openExchangeFeign, GiphyFeign giphyFeign) {
-        this.giphyHandler = giphyHandler;
+    public RichBrokeController(OpenExchangeFeign openExchangeFeign, GiphyFeign giphyFeign) {
         this.openExchangeFeign = openExchangeFeign;
         this.giphyFeign = giphyFeign;
 
@@ -40,7 +37,7 @@ public class RichBrokeController {
     }
 
     @GetMapping("/richorbroke")
-    public String getCurrencyInfoForYesterday(/*@RequestParam(name = "currency") String currency*/) {
+    public String getComparedCurrencyGif(/*@RequestParam(name = "currency") String currency*/) {
         ResponseEntity<String> responseEntityYesterday = openExchangeFeign.getCurrencyInfoForYesterday(datePathYesterday,
                 currencyApiKey);
         ResponseEntity<String> responseEntityToday = openExchangeFeign.getCurrencyInfoForToday(currencyApiKey);

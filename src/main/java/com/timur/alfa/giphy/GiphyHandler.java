@@ -3,6 +3,8 @@ package com.timur.alfa.giphy;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+//TODO remove
+@Deprecated
 @Component
 public class GiphyHandler {
     @Value("${giphyApiKey}")
