@@ -2,6 +2,7 @@ package com.timur.alfa.controllers;
 
 import com.timur.alfa.giphy.GiphyFeign;
 import com.timur.alfa.openexchange.OpenExchangeFeign;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
@@ -37,7 +38,7 @@ public class RichBrokeController {
     }
 
     @GetMapping("/richorbroke")
-    public String getComparedCurrencyGif(/*@RequestParam(name = "currency") String currency*/) {
+    public String getComparedCurrencyGif() {
         ResponseEntity<String> responseEntityYesterday = openExchangeFeign.getCurrencyInfoForYesterday(datePathYesterday,
                 currencyApiKey);
         ResponseEntity<String> responseEntityToday = openExchangeFeign.getCurrencyInfoForToday(currencyApiKey);
@@ -54,11 +55,17 @@ public class RichBrokeController {
                 giphyFeign.getGifLinkFromSearch(giphyApiKey, giphySearchQuery, 1,
                         new Random().nextInt(2000));
         jsonObject = new JSONObject(responseEntityGiphy.getBody());
-        String gifLink = jsonObject.getJSONArray("data")
-                .getJSONObject(0)
-                .getJSONObject("images")
-                .getJSONObject("original")
-                .getString("url");
+        String gifLink = "";
+        try {
+            gifLink = jsonObject.getJSONArray("data")
+                    .getJSONObject(0)
+                    .getJSONObject("images")
+                    .getJSONObject("original")
+                    .getString("url");
+        } catch (JSONException e) {
+            // hardcoded gif link to a funny cat
+            gifLink = "https://media0.giphy.com/media/NmWXNMBS9uAhO/giphy.gif";
+        }
 
         return gifLink;
     }
